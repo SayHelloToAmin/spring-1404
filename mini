@@ -1,0 +1,26 @@
+import pygame , time
+pygame.init() #meqdardehi avalie
+window = pygame.display.set_mode((800,600), pygame.RESIZABLE) 
+pygame.display.set_caption("mini game")
+    
+count_down = 60
+start_ticks = pygame.time.get_ticks() // 1000
+
+running = True
+while running:
+    window.fill((100,130,93))
+    score = 0
+    font = pygame.font.Font(None, 25)
+    text_sourface1 = font.render("score : "+ str(score), True, (255, 255, 255))
+    window.blit(text_sourface1, (0,0))
+
+    current_time = pygame.time.get_ticks() // 1000  # دریافت زمان فعلی به ثانیه
+    remaining_time = max(0, count_down - (current_time - start_ticks))
+
+    text_sourface2 = font.render(f"time : {remaining_time}", True, (255, 255, 255))
+    window.blit(text_sourface2, (0,20))
+
+    pygame.display.update() #update resiable ta siah nashe 
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
