@@ -8,16 +8,16 @@ start_ticks = pygame.time.get_ticks() // 1000
 
 speed = 5
 
-x = random.randint(0,800)
-y = random.randint(0,600)
-n = random.randint(0,800)
-m = random.randint(0,600)
-k = random.randint(0,800)
-j = random.randint(0,600)
-h = random.randint(0,800)
-p = random.randint(0,600)
-f = random.randint(0,800)
-e = random.randint(0,600)
+x = random.randint(0,780)
+y = random.randint(0,580)
+n = random.randint(0,780)
+m = random.randint(0,580)
+k = random.randint(0,780)
+j = random.randint(0,580)
+h = random.randint(0,780)
+p = random.randint(0,580)
+f = random.randint(0,780)
+e = random.randint(0,580)
 
 running = True
 clock = pygame.time.Clock()
