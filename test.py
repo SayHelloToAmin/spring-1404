@@ -1,95 +1,53 @@
 import pygame
-import random
+import tkinter as tk
+from tkinter import messagebox
 
+# Dummy user credentials
+VALID_USERNAME = "player1"
+VALID_PASSWORD = "password123"
 
-WIDTH, HEIGHT = 800, 600
-WHITE = (255, 255, 255)
-FPS = 60
+# Function to verify login
+def login():
+    username = username_entry.get()
+    password = password_entry.get()
 
-pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("2-Player")
-clock = pygame.time.Clock()
+    if username == VALID_USERNAME and password == VALID_PASSWORD:
+        root.destroy()  # Close Tkinter window
+        start_pygame()  # Launch game window
+    else:
+        messagebox.showerror("Login Failed", "Invalid Username or Password")
 
-class Player:
-    def __init__(self, x, y, color, controls):
-        self.x = x
-        self.y = y
-        self.color = color
-        self.bullets = 10
-        self.time_left = 60
-        self.score = 0
-        self.controls = controls
+# Function to start Pygame window
+def start_pygame():
+    pygame.init()
+    screen = pygame.display.set_mode((600, 400))
+    pygame.display.set_caption("Pygame Window")
 
-    def move(self, dx):
-        pass
+    running = True
+    while running:
+        screen.fill((30, 30, 30))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-    def shoot(self):
-        pass
+        pygame.display.flip()
 
-    def draw(self, screen):
-        pass
+    pygame.quit()
 
-    def add_bullets(self, count):
-        pass
+# Tkinter GUI for login
+root = tk.Tk()
+root.title("Login")
+root.geometry("300x200")
 
-    def add_time(self, seconds):
-        pass
+tk.Label(root, text="Username:").pack(pady=5)
+username_entry = tk.Entry(root)
+username_entry.pack(pady=5)
 
+tk.Label(root, text="Password:").pack(pady=5)
+password_entry = tk.Entry(root, show="*")  # Hide password input
+password_entry.pack(pady=5)
 
-class Bullet:
-    def __init__(self, x, y):
-        pass
+login_button = tk.Button(root, text="Login", command=login)
+login_button.pack(pady=10)
 
-    def move(self):
-        pass
-
-    def draw(self, screen):
-        pass
-
-
-class Target:
-    def __init__(self):
-        pass
-
-    def draw(self, screen):
-        pass
-
-
-class Item:
-    def __init__(self, x, y, effect_type):
-        pass
-
-    def apply_effect(self, player):
-        pass
-
-    def draw(self, screen):
-        pass
-
-
-class Game:
-    def __init__(self):
-        pass
-
-    def run(self):
-        pass
-    def clock_tick(self):
-        pass
-
-    def handle_events(self):
-        pass
-
-        
-
-    def update(self):
-        pass
-
-
-        
-    def draw(self):
-        pass
-
-
-if __name__ == "__main__":
-    game = Game()
-    game.run()
+root.mainloop()
