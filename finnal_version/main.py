@@ -1,7 +1,7 @@
 import pygame, sys, random, time
 from pygame.locals import *
 from config import *
-
+from classes import *
 
 
 
@@ -23,36 +23,67 @@ blink_timer = pygame.time.get_ticks()
 
 
 # background music setting
+
 pygame.mixer.init() 
 pygame.mixer.music.load("finnal_version\media\Background.mp3") 
 pygame.mixer.music.set_volume(0.3)
 pygame.mixer.music.play(-1)  
+#-----------------------------------------------------
 
-# shot soundeffect setting
+
+
+# shot sound effect setting
+
 shoot_sound = pygame.mixer.Sound("finnal_version\media\Headshot.wav")  
 shoot_sound.set_volume(0.3) 
+#-----------------------------------------------------
 
 
 
 
-
-blink1 = False
-blink2 = False
 while running:
     clock.tick(72)
     win.blit(background, (0, 0))
     current_time = pygame.time.get_ticks()
+
+
+
+
+    spawn_target(targets, 5 , pygame)
+    targets, last_player1_shot, last_player2_shot = remove_hit_targets(targets, PLAYER1_SHOTS, PLAYER2_SHOTS, last_player1_shot, last_player2_shot)
+    
+    for target in targets:
+        target.draw(win , pygame)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     if current_time - last_update >= 1000: 
         if time_left_p1 > 0:
                 time_left_p1 -= 1
+        else:
+            PLAYER1 = False
         if time_left_p2 > 0:
             time_left_p2 -= 1
+        else:
+            PLAYER2 = False
         last_update = current_time 
         blink = True
-    else:
-        blink = False
 
     #timer blink 
+
     if time_left_p1 < 30:
         color_p1 = (255, 0, 0) 
         if current_time - blink_timer >= 500: 
@@ -70,7 +101,7 @@ while running:
     else:
         color_p2 = (255, 255, 255)  
         show_text_p2 = True
-
+    #-----------------------------------------------------
 
 
 
@@ -91,6 +122,13 @@ while running:
     win.blit(timer_text_p1, (20, 42))
     timer_text_p1 = font.render(f"Player 2 Bullets: {PLAYER2_BULLETS}", True, (255, 255, 255))
     win.blit(timer_text_p1, (1685, 42))
+
+
+    score_text_p1 = font.render(f"Player 1 Score: {PLAYER1_SCORE}", True, (255, 255, 255))
+    win.blit(score_text_p1, (20, 1050))
+
+    score_text_p2 = font.render(f"Player 2 Score: {PLAYER2_SCORE}", True, (255, 255, 255))
+    win.blit(score_text_p2, (1695, 1050))
     #-----------------------------------------------------
 
 
@@ -147,13 +185,13 @@ while running:
             sys.exit()
         elif event.type == KEYDOWN:
             if event.key == K_SPACE:
-                if PLAYER2_BULLETS != 0:
+                if PLAYER2_BULLETS != 0 and PLAYER2:
                     PLAYER2_SHOTS.append((PLAYER2_X , PLAYER2_Y))
                     PLAYER2_BULLETS -= 1
                     shoot_sound.play()
                 else:
                     pass
-            if event.key == K_RSHIFT:
+            if event.key == K_RSHIFT and PLAYER1:
                 if PLAYER1_BULLETS != 0:
                     PLAYER1_SHOTS.append((PLAYER1_X , PLAYER1_Y))
                     PLAYER1_BULLETS -= 1
