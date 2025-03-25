@@ -39,17 +39,24 @@ class Player:
 class Game:
     pygame.mixer.init() 
     # shot sound effect setting
-
     shoot_sound = pygame.mixer.Sound("finnal_version\media\Headshot.wav")  
     shoot_sound.set_volume(0.3) 
     #-----------------------------------------------------
-    target_char = pygame.image.load("finnal_version/media/target.png")
-    target_char = pygame.transform.scale(target_char, (60, 60))
+    hit_sound = pygame.mixer.Sound("finnal_version\media\hit_target.wav")  
+    hit_sound.set_volume(0.3) 
+    hit_item_sound = pygame.mixer.Sound("finnal_version\media\hit_item.wav")  
+    hit_item_sound.set_volume(0.3) 
 
+
+
+    target_char = pygame.image.load("finnal_version/media/target.png")
+    target_char = pygame.transform.scale(target_char, (45, 45))
+    icon = pygame.image.load("finnal_version/media/extra_itemm.png")
+    extra_icon = pygame.transform.scale(icon , (45, 40))
 
     players = [
-                Player("Player 1", random.randint(1, 1920), random.randint(1, 1080), 10, 120),
-                Player("Player 2", random.randint(1, 1920), random.randint(1, 1080), 10, 10)
+                Player("Player 1", random.randint(1, 1280), random.randint(1, 720), 10, 120),
+                Player("Player 2", random.randint(1, 1280), random.randint(1, 720), 10, 10)
             ]
 
 
@@ -66,6 +73,8 @@ class Game:
         self.player2_char = pygame.image.load("finnal_version/media/player2_char.png")
         self.player1_char = pygame.transform.scale(self.player1_char, (40, 40))
         self.player2_char = pygame.transform.scale(self.player2_char, (40, 40))
+        self.background = pygame.transform.scale(self.background, (1280, 720))
+
         #-----------------------------------------------------
 
         # background music setting
@@ -85,11 +94,9 @@ class Game:
         self.blink_timer = pygame.time.get_ticks()
         self.font = pygame.font.Font(None, 36)
         self.running = True
-        Game.players = [
-            Player("Player 1", random.randint(1, 1920), random.randint(1, 1080), 10, 120),
-            Player("Player 2", random.randint(1, 1920), random.randint(1, 1080), 10, 10)
-        ]
         self.targets = []
+        self.bonus_items = []
+
 
     def run(self):
         while self.running:
@@ -148,6 +155,24 @@ class Game:
                     Game.players[1].player = False
                 self.last_update = self.current_time 
 
+            #extra items 
+            if random.randint(1, 500) == 1: 
+                self.bonus_items.append(BonusItem(pygame))
+
+
+            
+            new_items = []
+            for item in self.bonus_items:
+                t , y = item.is_hit(Game.players[0].shots)
+                if t :
+                    item.apply_effect(Game.players[0], Game.players[1], self.targets)
+                    continue
+                t , y = item.is_hit(Game.players[1].shots)
+                if t:
+                    item.apply_effect(Game.players[1], Game.players[0], self.targets)
+                    continue
+                new_items.append(item)
+            self.bonus_items = new_items
 
 
             #timer blink 
@@ -180,6 +205,10 @@ class Game:
         for target in self.targets:
             target.draw(self.win, pygame)
 
+        for item in self.bonus_items:
+            item.draw(self.win, pygame)
+
+
         # Texts
 
         if Game.players[0].show_text:
@@ -194,14 +223,14 @@ class Game:
         timer_text_p1 = self.font.render(f"Player 1 Bullets: {Game.players[0].bullets}", True, (255, 255, 255))
         self.win.blit(timer_text_p1, (20, 42))
         timer_text_p1 = self.font.render(f"Player 2 Bullets: {Game.players[1].bullets}", True, (255, 255, 255))
-        self.win.blit(timer_text_p1, (1685, 42))
+        self.win.blit(timer_text_p1, (1045, 42))
 
 
         score_text_p1 = self.font.render(f"Player 1 Score: {Game.players[0].score}", True, (255, 255, 255))
-        self.win.blit(score_text_p1, (20, 1050))
+        self.win.blit(score_text_p1, (20, 690))
 
         score_text_p2 = self.font.render(f"Player 2 Score: {Game.players[1].score}", True, (255, 255, 255))
-        self.win.blit(score_text_p2, (1695, 1050))
+        self.win.blit(score_text_p2, (1055, 690))
         #-----------------------------------------------------
 
 
@@ -209,8 +238,8 @@ class Game:
 
 class Target:
     def __init__(self,pygame):
-        self.x = random.randint(200, 1920 - 200)
-        self.y = random.randint(200, 1080 - 200)
+        self.x = random.randint(100, 1280 - 100)
+        self.y = random.randint(100, 720 - 100)
         self.radius = 25
         self.spawn_time = pygame.time.get_ticks()
     
@@ -240,12 +269,14 @@ def remove_hit_targets(targets, player1_shots, player2_shots, last_player1_shot,
     for target in targets:
         hit , shot = target.is_hit(player1_shots)
         if hit:
+            Game.hit_sound.play()
             Game.players[0].score += calculate_score(last_player1_shot, shot)
             last_player1_shot = shot
             continue
         
         hit, shot = target.is_hit(player2_shots)
         if hit:
+            Game.hit_sound.play()
             Game.players[1].score += calculate_score(last_player2_shot, shot)
             last_player2_shot = shot
             continue
@@ -254,6 +285,29 @@ def remove_hit_targets(targets, player1_shots, player2_shots, last_player1_shot,
     return new_targets
 
 
+
+
+class BonusItem(Target):
+    def __init__(self,pygame):
+        super().__init__(pygame) 
+        self.type = random.choice(["extra_bullets", "extra_time", "reduce_opponent_time", "remove_target"])
+        
+        
+
+    def draw(self, win, pygame):
+        win.blit(Game.extra_icon, (self.x - 25, self.y - 25))
+
+    def apply_effect(self, player, opponent, targets):
+        Game.hit_item_sound.play()
+        
+        if self.type == "extra_bullets":
+            player.bullets += 5  
+        elif self.type == "extra_time":
+            player.time_left += 10  
+        elif self.type == "reduce_opponent_time":
+            opponent.time_left = max(0, opponent.time_left - 10)  
+        elif self.type == "remove_target" and targets:
+            targets.pop(random.randint(0, len(targets) - 1))  
 
 
 

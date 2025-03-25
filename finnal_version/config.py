@@ -1,6 +1,6 @@
 import random
-WIDTH = 1920
-HEIGHT = 1080
+WIDTH = 1280
+HEIGHT = 720
 
 initial_time_p1 = 120  
 initial_time_p2 = 50   
